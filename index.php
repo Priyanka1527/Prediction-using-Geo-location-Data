@@ -1,6 +1,9 @@
-<?php
-
-
+<html>
+ <body>
+ 	<table id="t02" align="center">
+ 		<tr>
+ 			<td>
+	<?php
       // create a new Curl resource
       $ch = curl_init ();
 
@@ -12,7 +15,8 @@
       // grab URL and pass it to the browser
 
       $ip = curl_exec ($ch);
-      echo "The public ip for this server is: $ip";
+      print "The public ip for this server is: $ip";
+      print "<br><br><br><br>The Latitude/Longitude representing the current location of the user are: <br>";
 
       $url = 'http://ipinfo.io/'.$ip;
       $ch = curl_init($url);
@@ -30,10 +34,10 @@
       $ret_array = json_decode($data);
 
       //Print the JSON packet returned containing geo-location information of the user
-      print "<pre>";
+      //print "<pre>";
       $location = $ret_array->loc;
-      print_r($ret_array);
-      print "</pre>"; 
+      //print_r($ret_array);
+      //print "</pre>"; 
 
       //Split the location information based on comma to separate the current Latitude and Longitude of the user
       $loc_divide = explode(",", $location);
@@ -57,25 +61,23 @@
       $records = mysql_query($sql);
     ?>
 
-    /
-    <html>
-    <body>
-	<table width="600" border="1">
+   
+   
+	<table id="t01">
 		<tr>
-			<th>ID</th>
 			<th>Name</th>
-			<th>Adress</th>
+			<th>Address</th>
 		</tr>
 		<tr>
 			<?php
 			//looping through all the records
 			while($pharmacy=mysql_fetch_assoc($records))
 			{
-				echo "<tr>";
+				/*echo "<tr>";
 				echo "<td>".$pharmacy['id']."</td>";
 				echo "<td>".$pharmacy['Name']."</td>";
 				echo "<td>".$pharmacy['Address']."</td>";
-				echo "</tr>";
+				echo "</tr>";*/
 
 				//retrieve the latitude & longitude of the current row being travesered
 				$latitude2 = $pharmacy['Latitude'];
@@ -91,7 +93,6 @@
 					$marker = $pharmacy['id'];
 				}
 				else
-
 				if ($distance < $dist)
 				{
 					$dist = $distance;
@@ -99,18 +100,26 @@
 				}
 			}
 			//print the shortes distance calculated
-			print "<br><br>";
-			print "Shortest Distance: ";
-			print_r($dist);
-			print "<br><br>";
+			print "<br><br><br>";
+			print "Nearest Pharmacy having distance: ";
 
-			//Retrive the packet containing nearest Pharmacy's Name and Address
-			$sql2 = "SELECT Name,Address FROM pharmacy where id = $marker";
+			//round up the calculated value upto 2 decimal places
+			$formatted_distance = round($dist,2);
+			print_r($formatted_distance);
+			print " miles<br><br>";
+
+			//Retrieve the packet containing nearest Pharmacy's details
+			$sql2 = "SELECT * FROM pharmacy where id = $marker";
 			$result = mysql_query($sql2);
 
 			while ($row = mysql_fetch_array($result)) 
 			{
-    			print_r($row);
+				echo "<tr>";
+				//print the Name of the nearest Pharmacy
+				echo "<td>".$row['Name']."</td>";
+				//print the Address of the nearest Pharmacy with City,State and Zip
+				echo "<td>".$row['Address']. ", ". $row['City']. ", ".$row['State']." - ".$row['Zip']."</td>";
+				echo "</tr>";
 			}
 
 			//method to calculate the shortest distance in miles
@@ -126,5 +135,41 @@
 			?>
 		</tr>
 	</table>
+</td>
+</tr>
+</table>
 </body>
 </html>
+
+<style>
+
+   	table#t01 
+   	{
+    width: 100%; 
+    background-color: #f1f1c1;
+    border: 1px solid black;
+    text-align: center;
+	}
+
+	table#t02
+   	{
+   	align: center;
+    width: 50%; 
+    background: linear-gradient(to bottom, #33ccff 0%, #ffffff 100%);
+    border: 1px solid black;
+	}
+
+	table, th, td 
+	{
+    border: 1px solid black;
+    border-collapse: collapse;
+	}
+
+	body
+	{
+		background-image:url(background.jpg);
+		background-size:100% 100vh;
+		background-repeat:no-repeat;
+
+	}
+ </style>
